@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Viết tên thiệp cưới</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f1ec;color:#342b29;font:15px system-ui,sans-serif}main{display:grid;grid-template-columns:350px 1fr;min-height:100vh}aside{padding:48px 30px;background:#fffdfa;border-right:1px solid #e6ddd6}small{color:#9b6457;letter-spacing:2px;font-size:11px}h1{font:32px Georgia,serif;line-height:1.2;margin:15px 0}p{color:#80736d;line-height:1.7}label{display:block;margin:28px 0 10px;font-weight:600}input[type=text]{width:100%;border:1px solid #d9ccc3;border-radius:9px;padding:14px;font:inherit}input[type=range]{width:100%;accent-color:#8b2429}input[type=color]{width:54px;height:38px;padding:3px;border:1px solid #d9ccc3;border-radius:6px;background:white;vertical-align:middle}button{width:100%;margin-top:32px;padding:15px;border:0;border-radius:9px;background:#84252b;color:white;font:600 15px system-ui;cursor:pointer}button:disabled{opacity:.45;cursor:default}.preview{padding:28px;display:flex;align-items:flex-start;justify-content:center}canvas{display:block;width:100%;max-width:650px;height:auto;box-shadow:0 10px 45px #47382a20;background:white}output{font-weight:400;float:right;color:#8b2429}#status{font-size:13px;min-height:44px}input:focus-visible,button:focus-visible{outline:3px solid #bc9185;outline-offset:3px}@media(max-width:760px){main{display:block}aside{padding:26px 22px}.preview{padding:18px}label{margin-top:18px}button{margin-top:20px}}
+select{width:100%;padding:12px;border:1px solid #d9ccc3;border-radius:8px;background:white;font:inherit}.secondary{margin-top:10px;background:#ece3dc;color:#573c34}hr{border:0;border-top:1px solid #e6ddd6;margin-top:28px}.preview-wrap{position:relative;width:100%;max-width:650px}#selection{position:absolute;border:2px dashed #b87542;background:#c8954510;pointer-events:none;display:none}canvas{cursor:pointer}aside{padding-top:30px}#blockHint{font-size:12px}input[type=number]{width:100px;padding:10px;border:1px solid #d9ccc3;border-radius:8px;font:inherit}.number-row{display:flex;align-items:center;gap:10px;margin-top:10px}.number-row label{margin:0;font-weight:400;font-size:13px}</style>
+<main><aside><small>VƯƠNG TIẾN & MAI HƯƠNG</small><h1>Gửi một lời mời<br>thật riêng.</h1><p>Nhập tên khách mời để tạo thiệp cưới. Ảnh xem trước cập nhật ngay khi bạn gõ.</p><label for="name">Tên khách mời</label><input id="name" type="text" placeholder="Ví dụ: Anh Minh & Chị Lan" maxlength="120" autocomplete="off"><label for="size">Cỡ chữ tên khách <output id="sizeValue">26 px</output></label><input id="size" type="range" min="16" max="42" value="26"><label for="nameAlign">Căn lề tên khách mời</label><select id="nameAlign"><option value="left">Căn trái</option><option value="center" selected>Căn giữa</option><option value="right">Căn phải</option></select><label for="color">Màu chữ</label><input id="color" type="color" value="#800b12"> <span id="colorValue">#800B12</span><hr><label for="block">Khối chữ trên thiệp</label><select id="block"></select><label for="blockSize">Kích thước khối <output id="blockSizeValue">100%</output></label><input id="blockSize" type="range" min="60" max="140" value="100" step="1"><div class="number-row"><label for="blockSizeNumber">Nhập kích thước (%)</label><input id="blockSizeNumber" type="number" min="60" max="140" step="1" value="100" inputmode="numeric"></div><p id="blockHint">Chọn khối trong danh sách hoặc bấm lên chữ trong ảnh. Phóng từ tâm khối; chữ lớn có thể chạm khối bên cạnh.</p><button class="secondary" id="resetBlock">Đặt lại khối đang chọn</button><button class="secondary" id="resetAll">Đặt lại mọi khối</button><hr><button class="secondary" id="saveSettings">Lưu thông số ra file .txt</button><button class="secondary" id="loadSettings">Đọc thông số từ file .txt</button><input id="settingsFile" type="file" accept=".txt,text/plain" hidden><p id="settingsStatus" aria-live="polite" style="font-size:12px">Chỉnh sửa được tự nhớ trên trình duyệt này. Dùng file .txt để sao lưu hoặc chuyển máy.</p><button id="export" disabled>↓ Xuất ảnh PNG</button><p id="status" aria-live="polite">Đang tải mẫu thiệp…</p><p style="font-size:12px">Ảnh xuất giữ nguyên độ phân giải gốc. Tệp được đặt theo tên khách mời.</p></aside><section class="preview" aria-label="Xem trước thiệp"><div class="preview-wrap"><canvas id="canvas"></canvas><div id="selection" aria-hidden="true"></div></div></section></main>
+<script>
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),nameInput=document.getElementById('name'),size=document.getElementById('size'),color=document.getElementById('color'),button=document.getElementById('export'),status=document.getElementById('status');
+const nameAlign=document.getElementById('nameAlign'),blockSizeNumber=document.getElementById('blockSizeNumber');
+const blocks=[
+['Tiêu đề Wedding Timeline',260,147,416,48],
+['16:00 — Đón khách',108,301,146,58],
+['16:30 — Lễ cưới',321,301,108,58],
+['17:00 — Khai tiệc',505,301,120,58],
+['18:00 — Ca nhạc',698,301,115,58],
+['Trân trọng kính mời',122,518,294,32],
+['Lời mời dự tiệc',146,563,640,32],
+['Tên cô dâu & chú rể — trang giữa',50,654,838,143],
+['Ngày giờ tiệc cưới',87,846,204,95],
+['Địa điểm tiệc cưới',438,846,407,95],
+['Lời cảm ơn',138,982,599,60],
+['Trân trọng báo tin — Lễ thành hôn',315,1172,298,69],
+['Vương Tiến & Mai Hương',73,1282,784,72],
+['Ngày giờ & địa chỉ lễ thành hôn — trang cuối',156,1406,619,104],
+['Thông tin nhà trai',168,1552,244,88],
+['Thông tin nhà gái',578,1552,189,88]
+].map(([label,x,y,w,h])=>({label,x,y,w,h,zoom:100}));
+const blockSelect=document.getElementById('block'),blockSize=document.getElementById('blockSize'),selection=document.getElementById('selection');
+blocks.forEach((b,i)=>{const option=document.createElement('option');option.value=i;option.textContent=b.label;blockSelect.appendChild(option)});
+function updateSelection(){const b=blocks[Number(blockSelect.value)||0];blockSize.value=b.zoom;blockSizeNumber.value=b.zoom;document.getElementById('blockSizeValue').textContent=b.zoom+'%';selection.style.display='block';selection.style.left=(b.x/926*100)+'%';selection.style.top=(b.y/1699*100)+'%';selection.style.width=(b.w/926*100)+'%';selection.style.height=(b.h/1699*100)+'%'}
+blockSelect.addEventListener('change',updateSelection);
+function setBlockZoom(value){blocks[Number(blockSelect.value)].zoom=Math.max(60,Math.min(140,Math.round(value)));updateSelection();render()}
+blockSize.addEventListener('input',()=>setBlockZoom(Number(blockSize.value)));
+blockSizeNumber.addEventListener('input',()=>{const value=blockSizeNumber.valueAsNumber;if(Number.isFinite(value)&&value>=60&&value<=140)setBlockZoom(value)});
+blockSizeNumber.addEventListener('change',()=>{const value=blockSizeNumber.valueAsNumber;setBlockZoom(Number.isFinite(value)?value:blocks[Number(blockSelect.value)].zoom)});
+document.getElementById('resetBlock').addEventListener('click',()=>{blocks[Number(blockSelect.value)].zoom=100;updateSelection();render()});
+document.getElementById('resetAll').addEventListener('click',()=>{blocks.forEach(b=>b.zoom=100);updateSelection();render()});
+canvas.addEventListener('click',event=>{const r=canvas.getBoundingClientRect(),x=(event.clientX-r.left)/r.width*926,y=(event.clientY-r.top)/r.height*1699;const i=blocks.findIndex(b=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h);if(i>=0){blockSelect.value=i;updateSelection()}});
+const template=new Image();let ready=false;
+template.onload=()=>{canvas.width=template.naturalWidth;canvas.height=template.naturalHeight;ready=true;restoreSettings();updateSelection();render()};
+template.onerror=()=>{status.textContent='Không tải được ảnh thiệp. Hãy mở lại tệp.'};
+const SETTINGS_KEY='wedding-invitation-settings-v1';
+const settingsStatus=document.getElementById('settingsStatus');
+function getSettings(){return {app:'wedding-invitation',version:1,name:nameInput.value,fontSize:Number(size.value),color:color.value,align:nameAlign.value,blocks:blocks.map(b=>({label:b.label,zoom:b.zoom}))}}
+function validateSettings(data){
+if(!data||data.app!=='wedding-invitation'||data.version!==1||typeof data.name!=='string'||data.name.length>120||!Number.isInteger(data.fontSize)||data.fontSize<16||data.fontSize>42||!/^#[0-9a-f]{6}$/i.test(data.color)||!['left','center','right'].includes(data.align)||!Array.isArray(data.blocks)||data.blocks.length!==blocks.length)throw Error('File thông số không hợp lệ hoặc không phù hợp với mẫu thiệp này.');
+for(let i=0;i<blocks.length;i++){const b=data.blocks[i];if(!b||b.label!==blocks[i].label||!Number.isInteger(b.zoom)||b.zoom<60||b.zoom>140)throw Error('Thông số khối chữ không hợp lệ.')}return data;
+}
+function applySettings(data){validateSettings(data);nameInput.value=data.name;size.value=data.fontSize;color.value=data.color;nameAlign.value=data.align;blocks.forEach((b,i)=>b.zoom=data.blocks[i].zoom)}
+function rememberSettings(){try{localStorage.setItem(SETTINGS_KEY,JSON.stringify(getSettings()))}catch{settingsStatus.textContent='Trình duyệt không cho tự nhớ. Hãy dùng nút lưu file .txt để giữ thông số.'}}
+function restoreSettings(){try{const saved=localStorage.getItem(SETTINGS_KEY);if(saved){applySettings(JSON.parse(saved));settingsStatus.textContent='Đã khôi phục chỉnh sửa lần trước trên trình duyệt này.'}}catch{settingsStatus.textContent='Không khôi phục được bản tự nhớ. Bạn có thể đọc lại file .txt đã lưu.'}}
+document.getElementById('saveSettings').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(getSettings(),null,2)],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='thong-so-thiep-cuoi.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);settingsStatus.textContent='Đã tải file thông số .txt. Giữ file để đọc lại khi cần.'});
+const settingsFile=document.getElementById('settingsFile');
+document.getElementById('loadSettings').addEventListener('click',()=>settingsFile.click());
+settingsFile.addEventListener('change',async()=>{const file=settingsFile.files[0];if(!file)return;try{if(file.size>100000)throw Error('File thông số quá lớn. Vui lòng chọn đúng file .txt đã lưu.');const data=JSON.parse((await file.text()).replace(/^\uFEFF/,''));applySettings(data);updateSelection();render();settingsStatus.textContent='Đã đọc và khôi phục toàn bộ thông số từ file .txt.'}catch(error){settingsStatus.textContent=error instanceof SyntaxError?'File không đúng định dạng thông số.':error.message}finally{settingsFile.value=''}});
+template.src='__IMAGE_DATA__';
+function render(){if(!ready)return;rememberSettings();ctx.drawImage(template,0,0);const scale=canvas.width/926;const name=nameInput.value.trim();document.getElementById('sizeValue').textContent=size.value+' px';document.getElementById('colorValue').textContent=color.value.toUpperCase();button.disabled=!name;
+// Erase changed source blocks using the nearby unprinted paper texture.
+const changed=blocks.filter(b=>b.zoom!==100);
+for(const b of changed){ctx.drawImage(template,b.x*scale,(b.y-12)*scale,b.w*scale,5*scale,b.x*scale,b.y*scale,b.w*scale,b.h*scale)}
+for(const b of changed){const z=b.zoom/100;ctx.drawImage(template,b.x*scale,b.y*scale,b.w*scale,b.h*scale,(b.x+b.w*(1-z)/2)*scale,(b.y+b.h*(1-z)/2)*scale,b.w*z*scale,b.h*z*scale)}
+if(!name){status.textContent='Nhập tên để xuất thiệp.';return}
+// Copy nearby paper texture over the dotted placeholder; preserve the invitation label.
+ctx.drawImage(template,416*scale,485*scale,395*scale,34*scale,416*scale,516*scale,395*scale,34*scale);
+ctx.save();ctx.fillStyle=color.value;ctx.font=`${size.value*scale}px "Times New Roman",serif`;ctx.textBaseline='alphabetic';ctx.textAlign=nameAlign.value;const available=382*scale;const width=ctx.measureText(name).width;const fit=Math.min(1,available/width);const anchor=nameAlign.value==='left'?423:nameAlign.value==='right'?805:614;ctx.translate(anchor*scale,542*scale);ctx.scale(fit,fit);ctx.fillText(name,0,0);ctx.restore();status.textContent=fit<1?'Tên dài được tự thu nhỏ để vừa dòng mời.':'Thiệp đã sẵn sàng để xuất.';
+}
+[nameInput,size,color,nameAlign].forEach(input=>input.addEventListener('input',render));
+button.addEventListener('click',()=>{if(!ready||!nameInput.value.trim())return;render();button.disabled=true;canvas.toBlob(blob=>{button.disabled=false;if(!blob){status.textContent='Xuất ảnh chưa thành công. Vui lòng thử lại.';return}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;const safe=nameInput.value.trim().normalize('NFC').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'-').replace(/[. ]+$/g,'').slice(0,100)||'Khách mời';a.download='Thiệp mời - '+safe+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);status.textContent='Đã xuất ảnh thiệp cho '+nameInput.value.trim()+'.'},'image/png')});
+</script></html>
