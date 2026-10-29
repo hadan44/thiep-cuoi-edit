@@ -22,3 +22,8 @@ Chỉnh `index.template.html`, sau đó chạy `node build.cjs` để tạo hai 
 Chạy `node test.cjs` để kiểm tra đọc/ghi file, dữ liệu không hợp lệ và bảo toàn file bị lỗi. Kiểm tra chạy trên bản sao trong thư mục tạm.
 
 Chữ có sẵn trong PNG được phóng theo từng vùng ảnh; kích thước quá lớn có thể làm mờ chữ hoặc chạm vùng khác.
+
+## Website trực tuyến
+
+GitHub Pages phục vụ index.html từ nhánh main, thư mục gốc. Trên website trực tuyến, thông số tự nhớ trong trình duyệt; lưu/đọc .txt bằng nút trên giao diện. Tự ghi file .txt trên máy cần chạy Chay-thiep-cuoi.cmd.
+

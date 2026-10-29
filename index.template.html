@@ -29,7 +29,8 @@ const blocks=[
 ].map(([label,x,y,w,h])=>({label,x,y,w,h,zoom:100}));
 const blockSelect=document.getElementById('block'),blockSize=document.getElementById('blockSize'),selection=document.getElementById('selection');
 blocks.forEach((b,i)=>{const option=document.createElement('option');option.value=i;option.textContent=b.label;blockSelect.appendChild(option)});
-function updateSelection(){const b=blocks[Number(blockSelect.value)||0];blockSize.value=b.zoom;blockSizeNumber.value=b.zoom;document.getElementById('blockSizeValue').textContent=b.zoom+'%';selection.style.display='block';selection.style.left=(b.x/926*100)+'%';selection.style.top=(b.y/1699*100)+'%';selection.style.width=(b.w/926*100)+'%';selection.style.height=(b.h/1699*100)+'%'}
+function blockBounds(b){const z=b.zoom/100;return {x:b.x+b.w*(1-z)/2,y:b.y+b.h*(1-z)/2,w:b.w*z,h:b.h*z}}
+function updateSelection(){const b=blocks[Number(blockSelect.value)||0];blockSize.value=b.zoom;blockSizeNumber.value=b.zoom;document.getElementById('blockSizeValue').textContent=b.zoom+'%';const bounds=blockBounds(b);selection.style.display='block';selection.style.left=(bounds.x/926*100)+'%';selection.style.top=(bounds.y/1699*100)+'%';selection.style.width=(bounds.w/926*100)+'%';selection.style.height=(bounds.h/1699*100)+'%'}
 blockSelect.addEventListener('change',updateSelection);
 function setBlockZoom(value){blocks[Number(blockSelect.value)].zoom=Math.max(60,Math.min(140,Math.round(value)));updateSelection();render()}
 blockSize.addEventListener('input',()=>setBlockZoom(Number(blockSize.value)));
@@ -37,7 +38,7 @@ blockSizeNumber.addEventListener('input',()=>{const value=blockSizeNumber.valueA
 blockSizeNumber.addEventListener('change',()=>{const value=blockSizeNumber.valueAsNumber;setBlockZoom(Number.isFinite(value)?value:blocks[Number(blockSelect.value)].zoom)});
 document.getElementById('resetBlock').addEventListener('click',()=>{blocks[Number(blockSelect.value)].zoom=100;updateSelection();render()});
 document.getElementById('resetAll').addEventListener('click',()=>{blocks.forEach(b=>b.zoom=100);updateSelection();render()});
-canvas.addEventListener('click',event=>{const r=canvas.getBoundingClientRect(),x=(event.clientX-r.left)/r.width*926,y=(event.clientY-r.top)/r.height*1699;const i=blocks.findIndex(b=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h);if(i>=0){blockSelect.value=i;updateSelection()}});
+canvas.addEventListener('click',event=>{const r=canvas.getBoundingClientRect(),x=(event.clientX-r.left)/r.width*926,y=(event.clientY-r.top)/r.height*1699;const i=blocks.findIndex(b=>{const r=blockBounds(b);return x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h});if(i>=0){blockSelect.value=i;updateSelection()}});
 const template=new Image();let ready=false;
 template.onload=async()=>{canvas.width=template.naturalWidth;canvas.height=template.naturalHeight;await loadStartupSettings();ready=true;updateSelection();render()};
 template.onerror=()=>{status.textContent='Không tải được ảnh thiệp. Hãy mở lại tệp.'};
@@ -67,14 +68,17 @@ document.getElementById('loadSettings').addEventListener('click',()=>settingsFil
 settingsFile.addEventListener('change',async()=>{const file=settingsFile.files[0];if(!file)return;try{if(file.size>100000)throw Error('File thông số quá lớn. Vui lòng chọn đúng file .txt đã lưu.');const data=JSON.parse((await file.text()).replace(/^\uFEFF/,''));applySettings(data);updateSelection();render();settingsStatus.textContent='Đã đọc và khôi phục toàn bộ thông số từ file .txt.'}catch(error){settingsStatus.textContent=error instanceof SyntaxError?'File không đúng định dạng thông số.':error.message}finally{settingsFile.value=''}});
 template.src='__IMAGE_DATA__';
 function render(){if(!ready)return;rememberSettings();ctx.drawImage(template,0,0);const scale=canvas.width/926;const name=nameInput.value.trim();document.getElementById('sizeValue').textContent=size.value+' px';document.getElementById('colorValue').textContent=color.value.toUpperCase();button.disabled=!name;
+// Clear the original dots BEFORE painting resized blocks so the paper patch cannot cover the invitation label.
+ctx.drawImage(template,416*scale,485*scale,395*scale,34*scale,416*scale,516*scale,395*scale,34*scale);
 // Erase changed source blocks using the nearby unprinted paper texture.
 const changed=blocks.filter(b=>b.zoom!==100);
 for(const b of changed){ctx.drawImage(template,b.x*scale,(b.y-12)*scale,b.w*scale,5*scale,b.x*scale,b.y*scale,b.w*scale,b.h*scale)}
 for(const b of changed){const z=b.zoom/100;ctx.drawImage(template,b.x*scale,b.y*scale,b.w*scale,b.h*scale,(b.x+b.w*(1-z)/2)*scale,(b.y+b.h*(1-z)/2)*scale,b.w*z*scale,b.h*z*scale)}
 if(!name){status.textContent='Nhập tên để xuất thiệp.';return}
-// Copy nearby paper texture over the dotted placeholder; preserve the invitation label.
-ctx.drawImage(template,416*scale,485*scale,395*scale,34*scale,416*scale,516*scale,395*scale,34*scale);
-ctx.save();ctx.fillStyle=color.value;ctx.font=`${size.value*scale}px "Times New Roman",serif`;ctx.textBaseline='alphabetic';ctx.textAlign=nameAlign.value;const available=382*scale;const width=ctx.measureText(name).width;const fit=Math.min(1,available/width);const anchor=nameAlign.value==='left'?423:nameAlign.value==='right'?805:614;ctx.translate(anchor*scale,542*scale);ctx.scale(fit,fit);ctx.fillText(name,0,0);ctx.restore();status.textContent=fit<1?'Tên dài được tự thu nhỏ để vừa dòng mời.':'Thiệp đã sẵn sàng để xuất.';
+// Reserve space after the resized invitation label for the guest name.
+const invitationBounds=blockBounds(blocks[5]);
+const guestLeft=Math.max(423,invitationBounds.x+invitationBounds.w+7),guestRight=805;
+ctx.save();ctx.fillStyle=color.value;ctx.font=`${size.value*scale}px "Times New Roman",serif`;ctx.textBaseline='alphabetic';ctx.textAlign=nameAlign.value;const available=(guestRight-guestLeft)*scale;const width=ctx.measureText(name).width;const fit=Math.min(1,available/width);const anchor=nameAlign.value==='left'?guestLeft:nameAlign.value==='right'?guestRight:(guestLeft+guestRight)/2;ctx.translate(anchor*scale,542*scale);ctx.scale(fit,fit);ctx.fillText(name,0,0);ctx.restore();status.textContent=fit<1?'Tên dài được tự thu nhỏ để vừa dòng mời.':'Thiệp đã sẵn sàng để xuất.';
 }
 [nameInput,size,color,nameAlign].forEach(input=>input.addEventListener('input',render));
 button.addEventListener('click',()=>{if(!ready||!nameInput.value.trim())return;render();button.disabled=true;canvas.toBlob(blob=>{button.disabled=false;if(!blob){status.textContent='Xuất ảnh chưa thành công. Vui lòng thử lại.';return}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;const safe=nameInput.value.trim().normalize('NFC').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'-').replace(/[. ]+$/g,'').slice(0,100)||'Khách mời';a.download='Thiệp mời - '+safe+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);status.textContent='Đã xuất ảnh thiệp cho '+nameInput.value.trim()+'.'},'image/png')});
