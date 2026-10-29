@@ -1,0 +1,74 @@
+{
+  "app": "wedding-invitation",
+  "version": 1,
+  "name": "",
+  "fontSize": 26,
+  "color": "#800b12",
+  "align": "center",
+  "blocks": [
+    {
+      "label": "Tiêu đề Wedding Timeline",
+      "zoom": 100
+    },
+    {
+      "label": "16:00 — Đón khách",
+      "zoom": 100
+    },
+    {
+      "label": "16:30 — Lễ cưới",
+      "zoom": 100
+    },
+    {
+      "label": "17:00 — Khai tiệc",
+      "zoom": 100
+    },
+    {
+      "label": "18:00 — Ca nhạc",
+      "zoom": 100
+    },
+    {
+      "label": "Trân trọng kính mời",
+      "zoom": 120
+    },
+    {
+      "label": "Lời mời dự tiệc",
+      "zoom": 129
+    },
+    {
+      "label": "Tên cô dâu & chú rể — trang giữa",
+      "zoom": 75
+    },
+    {
+      "label": "Ngày giờ tiệc cưới",
+      "zoom": 120
+    },
+    {
+      "label": "Địa điểm tiệc cưới",
+      "zoom": 120
+    },
+    {
+      "label": "Lời cảm ơn",
+      "zoom": 120
+    },
+    {
+      "label": "Trân trọng báo tin — Lễ thành hôn",
+      "zoom": 100
+    },
+    {
+      "label": "Vương Tiến & Mai Hương",
+      "zoom": 75
+    },
+    {
+      "label": "Ngày giờ & địa chỉ lễ thành hôn — trang cuối",
+      "zoom": 130
+    },
+    {
+      "label": "Thông tin nhà trai",
+      "zoom": 130
+    },
+    {
+      "label": "Thông tin nhà gái",
+      "zoom": 130
+    }
+  ]
+}
