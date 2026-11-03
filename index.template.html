@@ -18,7 +18,7 @@ const blocks=[
 ['Trân trọng kính mời',122,518,294,32],
 ['Lời mời dự tiệc',146,563,640,32],
 ['Tên cô dâu & chú rể — trang giữa',50,654,838,143],
-['Ngày giờ tiệc cưới',87,846,204,95],
+['Ngày giờ tiệc cưới',87,846,225,95],
 ['Địa điểm tiệc cưới',438,846,407,95],
 ['Lời cảm ơn',138,982,599,60],
 ['Trân trọng báo tin — Lễ thành hôn',315,1172,298,69],
@@ -46,7 +46,8 @@ const SETTINGS_KEY='wedding-invitation-settings-v1';
 const settingsStatus=document.getElementById('settingsStatus');
 let fileMode=false,fileToken='',saveTimer,lastSaved='',saving=false;
 async function loadStartupSettings(){
-if(location.protocol==='http:'&&['127.0.0.1','localhost'].includes(location.hostname)){
+const host=new URL(document.baseURI);
+if(host.protocol==='http:'&&['127.0.0.1','localhost'].includes(host.hostname)){
 try{const response=await fetch('/api/settings',{cache:'no-store'});if(!response.ok)throw Error();const data=await response.json();applySettings(data.settings);fileToken=data.token;fileMode=true;lastSaved=JSON.stringify(getSettings());settingsStatus.textContent='Đã đọc thong-so-thiep-cuoi.txt. Thay đổi sẽ tự lưu vào file này.';document.getElementById('saveSettings').textContent='Lưu ngay vào file .txt';return}catch{restoreSettings();settingsStatus.textContent='Không đọc được file .txt. Tự lưu file đã tạm dừng để giữ nguyên file cũ. Kiểm tra cửa sổ khởi động rồi mở lại trang.';return}}
 restoreSettings();
 }
