@@ -7,7 +7,8 @@ Mỗi khi mở, phần mềm ưu tiên thông số trong file `.txt`. Thay đổ
 Vẫn có thể mở `Thiep-cuoi.html` trực tiếp để dùng offline, nhưng chế độ đó chỉ tự nhớ trong trình duyệt và lưu/đọc file thủ công.
 
 - Nhập tên khách, chỉnh cỡ chữ, màu và căn trái/giữa/phải.
-- Chọn từng khối chữ để thay đổi kích thước 60–140% bằng thanh kéo hoặc nhập số.
+- Ở tab **Nhà trai** và **Nhà gái**, chọn từng khối chữ để thay đổi kích thước 60–140%.
+- Ở tab **Nhà gái new**, tên khách được điền vào dòng chấm dưới lời mời. Ảnh PNG xuất ra có kích thước gốc 3720 × 5243 px.
 - Xuất PNG ở độ phân giải gốc, đặt tên tệp theo khách mời.
 - Bấm **Lưu thông số ra file .txt** để tải bản sao lưu.
 - Lần sau bấm **Đọc thông số từ file .txt** và chọn bản đã lưu để khôi phục.
