@@ -3,7 +3,7 @@ const path = require('node:path');
 const root = __dirname;
 const template = fs.readFileSync(path.join(root, 'index.template.html'), 'utf8');
 const embed = (name) => 'data:image/png;base64,' + fs.readFileSync(path.join(root, name)).toString('base64');
-const groom = template.replace('__IMAGE_DATA__', embed('ChatGPT Image 29 Oct 2026, 20_37_54.png'));
+const groom = template.replace('__IMAGE_DATA__', embed('Thiep-cuoi-FEFCF6.png'));
 const bride = template
   .replace(/const blocks=isNewBride\?\[\]:\[[\s\S]*?\]\.map/, `const blocks=[
 ['Tiêu đề Wedding Timeline',204,116,323,35],
