@@ -5,7 +5,7 @@ const template = fs.readFileSync(path.join(root, 'index.template.html'), 'utf8')
 const embed = (name) => 'data:image/png;base64,' + fs.readFileSync(path.join(root, name)).toString('base64');
 const groom = template.replace('__IMAGE_DATA__', embed('Thiep-cuoi-FEFCF6.png'));
 const bride = template
-  .replace(/const blocks=isNewBride\?\[\]:\[[\s\S]*?\]\.map/, `const blocks=[
+  .replace(/const blocks=isNewInvitation\?\[\]:\[[\s\S]*?\]\.map/, `const blocks=[
 ['Tiêu đề Wedding Timeline',204,116,323,35],
 ['08:30 — Đón khách',82,231,113,48],
 ['10:00 — Lễ cưới',322,231,86,48],
@@ -31,17 +31,19 @@ const bride = template
   .replace('416*scale,485*scale,395*scale,34*scale,416*scale,516*scale,395*scale,34*scale', '328*scale,373*scale,304*scale,26*scale,328*scale,403*scale,304*scale,26*scale')
   .replace('blocks[5]', 'blocks[4]').replace('Math.max(423,', 'Math.max(333,').replace('guestRight=805', 'guestRight=627').replace('542*scale', '423*scale')
   .replace('__IMAGE_DATA__', embed('Thiep-nha-gai-4K.png'));
-const brideNew = template
-  .replace('const isNewBride=false', 'const isNewBride=true')
+const newInvitation = (side, image, settingsFile) => template
+  .replace('const isNewInvitation=false', 'const isNewInvitation=true')
   .replace('<div id="blockControls">', '<div id="blockControls" hidden>')
   .replace('max="42"', 'max="28"')
-  .replaceAll('#800b12', '#990b00').replaceAll('#800B12', '#990B00')
+  .replaceAll('#800b12', '#9e6a10').replaceAll('#800B12', '#9E6A10')
   .replace("host.protocol==='http:'", 'false')
-  .replace('wedding-invitation-settings-v1', 'wedding-invitation-bride-new-settings-v1')
-  .replaceAll("'wedding-invitation'", "'wedding-invitation-bride-new'")
-  .replaceAll('thong-so-thiep-cuoi.txt', 'thong-so-thiep-nha-gai-new.txt')
+  .replace('wedding-invitation-settings-v1', `wedding-invitation-${side}-new-settings-v1`)
+  .replaceAll("'wedding-invitation'", `'wedding-invitation-${side}-new'`)
+  .replaceAll('thong-so-thiep-cuoi.txt', settingsFile)
   .replace('Mở bằng Chay-thiep-cuoi.cmd để tự đọc và tự lưu file .txt trong thư mục.', 'Thông số mẫu mới tự lưu trong trình duyệt này.')
-  .replace('__IMAGE_DATA__', embed('invitation_new.png'));
+  .replace('__IMAGE_DATA__', embed(image));
+const brideNew = newInvitation('bride', 'nha_gai_new.png', 'thong-so-thiep-nha-gai-new.txt');
+const groomNew = newInvitation('groom', 'nha_trai_new.png', 'thong-so-thiep-nha-trai-new.txt');
 const escapeAttribute = (html) => html.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
 const html = `<!doctype html>
 <html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -53,10 +55,11 @@ button{padding:9px 20px;border:0;border-radius:8px;background:#ece3dc;color:#573
 button[aria-pressed=true]{background:#84252b;color:white}
 iframe{flex:1;min-height:0;width:100%;border:0}
 </style>
-<nav aria-label="Chọn mẫu thiệp"><button aria-pressed="true" data-side="groom">Nhà trai</button><button aria-pressed="false" data-side="bride">Nhà gái</button><button aria-pressed="false" data-side="bride-new">Nhà gái new</button></nav>
+<nav aria-label="Chọn mẫu thiệp"><button aria-pressed="true" data-side="groom">Nhà trai</button><button aria-pressed="false" data-side="bride">Nhà gái</button><button aria-pressed="false" data-side="bride-new">Nhà gái new</button><button aria-pressed="false" data-side="groom-new">Nhà trai new</button></nav>
 <iframe id="groom" title="Sửa thiệp Nhà trai" srcdoc="${escapeAttribute(groom)}"></iframe>
 <iframe id="bride" title="Sửa thiệp Nhà gái" srcdoc="${escapeAttribute(bride)}" loading="lazy" hidden></iframe>
 <iframe id="bride-new" title="Sửa thiệp Nhà gái new" srcdoc="${escapeAttribute(brideNew)}" loading="lazy" hidden></iframe>
+<iframe id="groom-new" title="Sửa thiệp Nhà trai new" srcdoc="${escapeAttribute(groomNew)}" loading="lazy" hidden></iframe>
 <script>
 const choices = document.querySelectorAll('button[data-side]');
 for (const choice of choices) {
